@@ -14,6 +14,25 @@ type Encoder64 struct {
 	codeSet string
 }
 
+// Encode encodes a given byte array to base64
+func (enc Encoder64) Encode(bytes []byte) string {
+	return enc.encode(bytes)
+}
+
+// EncodeNum encodes a given uint64 to base64 by splitting the num into a byte array
+func (enc Encoder64) EncodeNum(num uint64) string {
+	var (
+		b  byte
+		by [8]byte
+	)
+	for i := 7; i >= 0; i-- {
+		b = byte(num)
+		num = num >> 8
+		by[i] = b
+	}
+	return enc.encode(by[:])
+}
+
 // CodeSet returns the codeSet, which the encoder uses to, well, en/decode
 func (enc Encoder64) CodeSet() string {
 	return enc.codeSet
@@ -30,7 +49,8 @@ func NewWeb() Encoder64 {
 }
 
 // NewCustom returns a new Encoder64 with the provided custom 64 character code set and an error
-// if the set is unfit
+// if the set is unfit. Please note: the first (left most) character of the string will be the least
+// significant character (0 * 64^n), while the last will be the most significant(63 * 64^n)
 func NewCustom(codeSet string) (Encoder64, error) {
 	return newCustom(codeSet)
 }
