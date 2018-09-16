@@ -14,6 +14,27 @@ type Encoder64 struct {
 	codeSet string
 }
 
+// Decode decodes a given string and returns an error if the string is not in a correct format
+func (enc Encoder64) Decode(encodedStr string) ([]byte, error) {
+	return enc.decode(encodedStr)
+}
+
+// DecodeNum decodes a given string, converts it to an unsigned int64 and returns an error if
+// the string is not in a correct format
+func (enc Encoder64) DecodeNum(encodedStr string) (uint64, error) {
+	b, err := enc.decode(encodedStr)
+	if err != nil {
+		return 0, err
+	}
+
+	var num uint64
+	for i := 0; i < 8; i++ {
+		num = num | uint64(b[i])
+		num = num << 8
+	}
+	return num, nil
+}
+
 // Encode encodes a given byte array to base64
 func (enc Encoder64) Encode(bytes []byte) string {
 	return enc.encode(bytes)
