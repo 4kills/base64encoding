@@ -5,6 +5,10 @@ import "errors"
 // StandardCodeSet is the default, http safe code set of base64encoding
 const StandardCodeSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
 
+// Base64WebSet is the standard base64 set for encoding data(e.g. images) in html files.
+// However, this is not secure for using in URLs due to the '/' character
+const Base64WebSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwsyz0123456789+/"
+
 // Encoder64 with multiple methods. Contains codeSet
 type Encoder64 struct {
 	codeSet string
@@ -18,6 +22,11 @@ func (enc Encoder64) CodeSet() string {
 // New returns a new Encoder64 with the standard, http safe code set
 func New() Encoder64 {
 	return Encoder64{codeSet: StandardCodeSet}
+}
+
+// NewWeb returns a new Encoder64 with the base64web encoding set used for encoding data in html
+func NewWeb() Encoder64 {
+	return Encoder64{codeSet: Base64WebSet}
 }
 
 // NewCustom returns a new Encoder64 with the provided custom 64 character code set and an error
