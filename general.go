@@ -9,6 +9,9 @@ const StandardCodeSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
 // However, this is not secure for using in URLs due to the '/' character
 const Base64WebSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwsyz0123456789+/"
 
+// EasilyReadableCodeSet is a set with no characters that look alike (e.g. 0 & O, l & I)
+const EasilyReadableCodeSet = "*=23456789abcdefghir/klmnopqrstuvwxyzABCDEFGH+JKLMNOPQRSTUVWXYZ-_"
+
 // Encoder64 with multiple methods. Contains codeSet
 type Encoder64 struct {
 	codeSet string
@@ -30,7 +33,9 @@ func (enc Encoder64) DecodeNum(encodedStr string) (uint64, error) {
 	var num uint64
 	for i := 0; i < 8; i++ {
 		num = num | uint64(b[i])
-		num = num << 8
+		if i != 7 {
+			num = num << 8
+		}
 	}
 	return num, nil
 }
