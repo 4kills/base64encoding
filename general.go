@@ -83,15 +83,12 @@ func NewCustom(codeSet string) (Encoder64, error) {
 
 func newCustom(code string) (Encoder64, error) {
 	if len(code) != 64 {
-		err := errors.New("base64encoding error: length of code set invalid; 64 characters required")
-		return Encoder64{}, err
+		return Encoder64{}, errors.New("base64encoding: length of code set invalid; 64 characters required")
 	}
 
 	for _, val := range code {
 		if val > 255 {
-			err := errors.New(`base64encoding error: illegal rune: at least one character of the provided code set
-			is not an ASCII or extended ASCII character`)
-			return Encoder64{}, err
+			return Encoder64{}, ErrIllegalRune
 		}
 	}
 
@@ -100,7 +97,7 @@ func newCustom(code string) (Encoder64, error) {
 	for _, v := range c {
 		_, ok := m[v]
 		if ok {
-			return Encoder64{}, errors.New("base64encoding: characters in codeSet are not pairwise distinct")
+			return Encoder64{}, ErrNotDistinct
 		}
 
 		m[v] = v
