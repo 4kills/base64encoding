@@ -95,13 +95,13 @@ func newCustom(code string) (Encoder64, error) {
 		}
 	}
 
-	b := newBitArray(unicode.MaxASCII + 1)
+	b := NewBitArray(unicode.MaxASCII + 1)
 	for i := 0; i < len(code); i++ {
-		if b.get(int(code[i])) != false {
+		if b.Get(int(code[i])) != false {
 			return Encoder64{}, ErrNotDistinct
 		}
 
-		b.set(int(code[i]), true)
+		b.Set(int(code[i]), true)
 	}
 
 	return Encoder64{codeSet: code}, nil
