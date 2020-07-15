@@ -10,7 +10,7 @@ const StandardCodeSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
 const Base64WebSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwsyz0123456789+/"
 
 // EasilyReadableCodeSet is a set with no characters that look alike (e.g. 0 & O, l & I)
-const EasilyReadableCodeSet = "*=23456789abcdefghir/klmnopqrstuvwxyzABCDEFGH+JKLMNOPQRSTUVWXYZ-_"
+const EasilyReadableCodeSet = "*=23456789abcdefghir_klmnopqrstuvwxyzABCDEFGH+JKLMNOPQRSTUVWXYZ-"
 
 // Encoder64 with multiple methods. Contains codeSet
 type Encoder64 struct {
