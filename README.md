@@ -26,7 +26,7 @@ You may create an encoder in one of the following ways:
   encoder := base64encoding.NewWeb()
   ```
 - encoder with a custom charset (or a constant of this library that wasn't given its own constructor) that is defined by the user. 
-  Note that the charset must be comprised of exactly 64 pairwise distinct (extended) ASCII characters:
+  Note that the charset must be comprised of exactly 64 pairwise distinct ASCII characters:
   ```go 
   myCharset := base64encoding.EasilyReadableCodeSet  
   // or myCharset := "my_custoM-CharSeT+0123456789..." (omitting the rest)
