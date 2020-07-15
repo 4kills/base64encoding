@@ -95,5 +95,16 @@ func newCustom(code string) (Encoder64, error) {
 		}
 	}
 
+	m := make(map[byte]byte)
+	c := []byte(code)
+	for _, v := range c {
+		_, ok := m[v]
+		if ok {
+			return Encoder64{}, errors.New("base64encoding: characters in codeSet are not pairwise distinct")
+		}
+
+		m[v] = v
+	}
+
 	return Encoder64{codeSet: code}, nil
 }
