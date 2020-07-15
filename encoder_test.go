@@ -3,7 +3,7 @@ package base64encoding
 import "testing"
 
 func TestNewCustom_PairwiseDistinction(t *testing.T) {
-	_, err := NewCustom(StandardCodeSet)
+	_, err := NewCustom(EasilyReadableCodeSet)
 	if err != nil {
 		t.Error(err)
 	}

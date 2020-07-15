@@ -2,6 +2,7 @@ package base64encoding
 
 import (
 	"errors"
+	"unicode"
 )
 
 // StandardCodeSet is the default, http safe code set of base64encoding
@@ -88,19 +89,19 @@ func newCustom(code string) (Encoder64, error) {
 		return Encoder64{}, errors.New("base64encoding: length of code set invalid; 64 characters required")
 	}
 
-	for _, val := range code {
-		if val > 255 {
+	for _, v := range code {
+		if v > unicode.MaxASCII {
 			return Encoder64{}, ErrIllegalRune
 		}
 	}
 
-	b := [255]byte{}
+	b := newBitArray(unicode.MaxASCII + 1)
 	for i := 0; i < len(code); i++ {
-		if b[code[i]] != 0 {
+		if b.get(int(code[i])) != false {
 			return Encoder64{}, ErrNotDistinct
 		}
 
-		b[code[i]] = 1
+		b.set(int(code[i]), true)
 	}
 
 	return Encoder64{codeSet: code}, nil
