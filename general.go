@@ -18,6 +18,7 @@ const EasilyReadableCodeSet = "*)23456789abcdefghi_klmnopqrstuvwxyzABCDEFGH+JKLM
 // Encoder64 with multiple methods. Contains codeSet
 type Encoder64 struct {
 	codeSet string
+	posMap []byte
 }
 
 // Decode decodes a given string and returns an error if the string is not in a correct format
@@ -69,12 +70,14 @@ func (enc Encoder64) CodeSet() string {
 
 // New returns a new Encoder64 with the standard, http safe code set
 func New() Encoder64 {
-	return Encoder64{codeSet: StandardCodeSet}
+	enc, _ :=  newCustom(StandardCodeSet)
+	return enc
 }
 
 // NewWeb returns a new Encoder64 with the base64web encoding set used for encoding data in html
 func NewWeb() Encoder64 {
-	return Encoder64{codeSet: Base64WebSet}
+	enc, _ := newCustom(Base64WebSet)
+	return enc
 }
 
 // NewCustom returns a new Encoder64 with the provided custom 64 character code set and an error
