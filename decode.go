@@ -14,37 +14,16 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 		return nil, err
 	}
 
-	return shift(bits), nil
-}
-
-func shift(bits BitArray) []byte {
-	l := bits.Len()
-	start := l%8
-	bs := make([]byte, (l - start)/8)
-
-	idx := 0
-	for i := start; i < l; i+=8 {
-		var b byte
-		for j := 0; j < 8; j++ {
-			bit := bits.Get(i+j)
-			if !bit {
-				continue
-			}
-			b |= 0x80 >> j
-		}
-
-		bs[idx] = b
-		idx++
-	}
-	return bs
+	return bits.bits[1:], nil
 }
 
 func base64ToBits(s, posMap []byte) (BitArray, error) {
 	bitLen := 6
-	bits := NewBitArray(len(s) * bitLen)
+	overflow := 8 - (len(s) * bitLen) % 8
+	bits := NewBitArray(overflow + len(s) * bitLen)
 
-	for i, v := range s {
-		num, err := findValue(v, posMap)
+	for i := 0; i < len(s); i++ {
+		num, err := findValue(s[i], posMap)
 		if err != nil {
 			return BitArray{}, err
 		}
@@ -56,7 +35,7 @@ func base64ToBits(s, posMap []byte) (BitArray, error) {
 				newBit = true
 			}
 
-			bits.Set(curPart + j, newBit)
+			bits.Set(overflow + curPart + j, newBit)
 		}
 	}
 
