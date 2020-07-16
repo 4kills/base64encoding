@@ -10,10 +10,10 @@ func bitsToBase64(bits BitArray, valMap []byte) []byte {
 	remainder := bits.Len() % log64
 	overflow := 0
 	if remainder != 0 {
-		overflow = 1
+		overflow = 1 
 	}
 
-	str := make([]byte, runs + overflow)
+	str := make([]byte, runs+overflow)
 
 	if remainder != 0 {
 		str[0] = valMap[nextNBits(bits, 0, remainder)]
@@ -21,7 +21,7 @@ func bitsToBase64(bits BitArray, valMap []byte) []byte {
 
 	for i := 0; i < runs; i++ {
 		pos := nextNBits(bits, remainder+log64*i, log64)
-		str[overflow + i] =  valMap[pos]
+		str[overflow+i] = valMap[pos] //gets the ASCII of the position in the code
 	}
 	return str
 }
