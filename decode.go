@@ -9,18 +9,19 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 		return nil, errors.New("base64decoding error: string is empty")
 	}
 
-	bits, err := base64ToBits([]byte(s), []byte(enc.posMap))
+	bits, err := base64ToBits([]byte(s), enc.posMap)
 	if err != nil {
 		return nil, err
 	}
 
+	// cut away the first shifted byte
 	return bits.bits[1:], nil
 }
 
 func base64ToBits(s, posMap []byte) (BitArray, error) {
-	bitLen := 6
-	overflow := 8 - (len(s) * bitLen) % 8
-	bits := NewBitArray(overflow + len(s) * bitLen)
+	bitLen := 6                        // only need 6 bit for the numbers 0-63
+	shift := 8 - (len(s) * bitLen) % 8 // shifting the bit so i can cut them away more easily later
+	bits := NewBitArray(shift + len(s) * bitLen)
 
 	for i := 0; i < len(s); i++ {
 		num, err := findValue(s[i], posMap)
@@ -35,7 +36,7 @@ func base64ToBits(s, posMap []byte) (BitArray, error) {
 				newBit = true
 			}
 
-			bits.Set(overflow + curPart + j, newBit)
+			bits.Set(shift+ curPart + j, newBit)
 		}
 	}
 
