@@ -2,11 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A small base64 encoding/decoding library for go that offers a variety of default charsets but also the option 
+A small but very efficient and fast base64 encoding/decoding library for go that offers a variety of default charsets but also the option 
 to use your very own, user-defined charset.
-
-Please be aware that there is still a lot of potential for perfomance improvements. 
-Feel free to contribute :yellow_heart:. 
 
 # Usage 
 
