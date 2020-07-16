@@ -1,6 +1,9 @@
 package base64encoding
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 func TestNewCustom_PairwiseDistinction(t *testing.T) {
 	_, err := NewCustom(EasilyReadableCodeSet)
@@ -15,6 +18,21 @@ func TestNewCustom_PairwiseDistinction(t *testing.T) {
 	_, err = NewCustom(faulty)
 	if err != ErrNotDistinct {
 		t.Error(err)
+	}
+}
+
+func TestEncoder64_Num(t *testing.T) {
+	num := uint64(math.MaxUint64)
+	enc := New()
+	encoded := enc.EncodeNum(num)
+
+	actual, err := enc.DecodeNum(encoded)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual != num {
+		t.Errorf("unequal: want: %d, got: %d", num, actual)
 	}
 }
 

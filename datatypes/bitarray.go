@@ -1,4 +1,4 @@
-package base64encoding
+package datatypes
 
 import "errors"
 
@@ -18,6 +18,12 @@ func NewBitArray(size int) BitArray {
 
 	b := make([]byte, s)
 	return BitArray{size, b}
+}
+
+// FromBytes creates a new BitArray with the provided bytes as initial values.
+// Beware that the src slice is *NOT* copied, so mutating it will change the inner state of this Array.
+func FromBytes(src []byte) BitArray {
+	return BitArray{len(src)*8, src}
 }
 
 // Len returns the len/size of the array

@@ -2,8 +2,7 @@ package base64encoding
 
 import (
 	"errors"
-	"math"
-	"strings"
+	"github.com/4kills/base64encoding/datatypes"
 )
 
 func (enc Encoder64) decode(s string) ([]byte, error) {
@@ -11,53 +10,45 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 		return nil, errors.New("base64decoding error: string is empty")
 	}
 
-	bits, err := base64ToBits(s, enc.codeSet)
+	bits, err := base64ToBits([]byte(s), enc.posMap)
 	if err != nil {
 		return nil, err
 	}
 
-	return bitsToBytes(bits), nil
+	// cut away the first shifted byte
+	return bits.bits[1:], nil
 }
 
-func bitsToBytes(bits []bool) []byte {
-	bits = bits[len(bits)%8:]
+func base64ToBits(s, posMap []byte) (datatypes.BitArray, error) {
+	bitLen := 6                        // only need 6 bit for the numbers 0-63
+	shift := 8 - (len(s) * bitLen) % 8 // shifting the bit so i can cut them away more easily later
+	bits := datatypes.NewBitArray(shift + len(s) * bitLen)
 
-	var b []byte
-	for i := 0; i < len(bits); i += 8 {
-		b = append(b, byte(bitsToDez(bits[i:i+8])))
-	}
-
-	return b
-}
-
-func base64ToBits(s, code string) ([]bool, error) {
-	var bits []bool
-	for _, val := range s {
-		num, err := base64Decoding(string(val), code)
+	for i := 0; i < len(s); i++ {
+		num, err := findValue(s[i], posMap)
 		if err != nil {
-			return nil, err
+			return datatypes.BitArray{}, err
 		}
 
-		bits = append(bits, numToBits(num)...)
+		curPart := i * bitLen
+		for j := 0; j < bitLen; j++ {
+			newBit := false
+			if (0x20 >> j) & num > 0 {
+				newBit = true
+			}
+
+			bits.Set(shift+ curPart + j, newBit)
+		}
 	}
+
 	return bits, nil
 }
 
-func numToBits(n int) []bool {
-	bits := byteToBits(byte(n))
-	return bits[8-6 : 8]
-}
-
-func base64Decoding(s, codeSet string) (int, error) {
-	num := 0
-	n := float64(len(s)) - 1
-	for i := 0; i < len(s); i++ {
-		index := strings.IndexByte(codeSet, s[i])
-		if index == -1 {
-			return num, errors.New(`base64decoding error: semantic error: 
-			string was invalid, character not found in codeset`)
-		}
-		num += index * int(math.Pow(64, n))
+func findValue(s byte, posMap []byte) (int, error) {
+	position := posMap[s]
+	idx := int(position - 1)
+	if position == 0 {
+		return idx, errors.New("base64decoding: semantic: string was invalid, character not found in codeset")
 	}
-	return num, nil
+	return idx, nil
 }

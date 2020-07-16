@@ -2,22 +2,15 @@ package base64encoding
 
 import (
 	"errors"
+	"github.com/4kills/base64encoding/datatypes"
 	"unicode"
 )
-
-// StandardCodeSet is the default, http safe code set of base64encoding
-const StandardCodeSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
-
-// Base64WebSet is the standard base64 set for encoding data(e.g. images) in html files.
-// However, this is not secure for using in URLs due to the '/' character
-const Base64WebSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
-// EasilyReadableCodeSet is a set with no characters that look alike (e.g. 0 & O, l & I)
-const EasilyReadableCodeSet = "*)23456789abcdefghi_klmnopqrstuvwxyzABCDEFGH+JKLMNOPQRSTUVWXYZ-$"
 
 // Encoder64 with multiple methods. Contains codeSet
 type Encoder64 struct {
 	codeSet string
+	posMap []byte
+	valMap []byte
 }
 
 // Decode decodes a given string and returns an error if the string is not in a correct format
@@ -69,12 +62,14 @@ func (enc Encoder64) CodeSet() string {
 
 // New returns a new Encoder64 with the standard, http safe code set
 func New() Encoder64 {
-	return Encoder64{codeSet: StandardCodeSet}
+	enc, _ :=  newCustom(StandardCodeSet)
+	return enc
 }
 
 // NewWeb returns a new Encoder64 with the base64web encoding set used for encoding data in html
 func NewWeb() Encoder64 {
-	return Encoder64{codeSet: Base64WebSet}
+	enc, _ := newCustom(Base64WebSet)
+	return enc
 }
 
 // NewCustom returns a new Encoder64 with the provided custom 64 character code set and an error
@@ -95,7 +90,8 @@ func newCustom(code string) (Encoder64, error) {
 		}
 	}
 
-	b := NewBitArray(unicode.MaxASCII + 1)
+	// check for pairwise distinction
+	b := datatypes.NewBitArray(unicode.MaxASCII + 1)
 	for i := 0; i < len(code); i++ {
 		if b.Get(int(code[i])) != false {
 			return Encoder64{}, ErrNotDistinct
@@ -104,5 +100,17 @@ func newCustom(code string) (Encoder64, error) {
 		b.Set(int(code[i]), true)
 	}
 
-	return Encoder64{codeSet: code}, nil
+	// map pos
+	pos := make([]byte, unicode.MaxASCII + 1)
+	for i := 0; i < len(code); i++ {
+		pos[code[i]] = 1 + byte(i)
+	}
+
+	// map val
+	val := make([]byte, len(code))
+	for i := 0; i < len(code); i++ {
+		val[i] = code[i]
+	}
+
+	return Encoder64{codeSet: code, posMap: pos, valMap: val}, nil
 }
