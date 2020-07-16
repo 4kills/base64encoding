@@ -1,7 +1,6 @@
 package base64encoding
 
 import (
-	"bytes"
 	"errors"
 )
 
@@ -10,7 +9,7 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 		return nil, errors.New("base64decoding error: string is empty")
 	}
 
-	bits, err := base64ToBits([]byte(s), []byte(enc.codeSet))
+	bits, err := base64ToBits([]byte(s), []byte(enc.posMap))
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +39,12 @@ func shift(bits BitArray) []byte {
 	return bs
 }
 
-func base64ToBits(s, code []byte) (BitArray, error) {
+func base64ToBits(s, posMap []byte) (BitArray, error) {
 	bitLen := 6
 	bits := NewBitArray(len(s) * bitLen)
 
 	for i, v := range s {
-		num, err := findValue(v, code)
+		num, err := findValue(v, posMap)
 		if err != nil {
 			return BitArray{}, err
 		}
@@ -64,12 +63,11 @@ func base64ToBits(s, code []byte) (BitArray, error) {
 	return bits, nil
 }
 
-// TODO: potential performance increase (remove linear search IndexByte?)
-func findValue(s byte, codeSet []byte) (int, error) {
-	index := bytes.IndexByte(codeSet, s)
-	if index == -1 {
-		return index, errors.New("base64decoding: semantic: string was invalid, character not found in codeset")
+func findValue(s byte, posMap []byte) (int, error) {
+	position := posMap[s]
+	idx := int(position - 1)
+	if position == 0 {
+		return idx, errors.New("base64decoding: semantic: string was invalid, character not found in codeset")
 	}
-
-	return index, nil
+	return idx, nil
 }

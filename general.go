@@ -98,6 +98,7 @@ func newCustom(code string) (Encoder64, error) {
 		}
 	}
 
+	// check for pairwise distinction
 	b := NewBitArray(unicode.MaxASCII + 1)
 	for i := 0; i < len(code); i++ {
 		if b.Get(int(code[i])) != false {
@@ -107,5 +108,11 @@ func newCustom(code string) (Encoder64, error) {
 		b.Set(int(code[i]), true)
 	}
 
-	return Encoder64{codeSet: code}, nil
+	// map pos
+	pos := make([]byte, unicode.MaxASCII + 1)
+	for i := 0; i < len(code); i++ {
+		pos[code[i]] = 1 + byte(i)
+	}
+
+	return Encoder64{codeSet: code, posMap: pos}, nil
 }
