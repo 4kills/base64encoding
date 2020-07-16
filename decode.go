@@ -1,9 +1,8 @@
 package base64encoding
 
 import (
+	"bytes"
 	"errors"
-	"math"
-	"strings"
 )
 
 func (enc Encoder64) decode(s string) ([]byte, error) {
@@ -11,53 +10,66 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 		return nil, errors.New("base64decoding error: string is empty")
 	}
 
-	bits, err := base64ToBits(s, enc.codeSet)
+	bits, err := base64ToBits([]byte(s), []byte(enc.codeSet))
 	if err != nil {
 		return nil, err
 	}
 
-	return bitsToBytes(bits), nil
+	return shift(bits), nil
 }
 
-func bitsToBytes(bits []bool) []byte {
-	bits = bits[len(bits)%8:]
+func shift(bits BitArray) []byte {
+	l := bits.Len()
+	start := l%8
+	bs := make([]byte, (l - start)/8)
 
-	var b []byte
-	for i := 0; i < len(bits); i += 8 {
-		b = append(b, byte(bitsToDez(bits[i:i+8])))
-	}
-
-	return b
-}
-
-func base64ToBits(s, code string) ([]bool, error) {
-	var bits []bool
-	for _, val := range s {
-		num, err := base64Decoding(string(val), code)
-		if err != nil {
-			return nil, err
+	idx := 0
+	for i := start; i < l; i+=8 {
+		var b byte
+		for j := 0; j < 8; j++ {
+			bit := bits.Get(i+j)
+			if !bit {
+				continue
+			}
+			b |= 0x80 >> j
 		}
 
-		bits = append(bits, numToBits(num)...)
+		bs[idx] = b
+		idx++
 	}
+	return bs
+}
+
+func base64ToBits(s, code []byte) (BitArray, error) {
+	bitLen := 6
+	bits := NewBitArray(len(s) * bitLen)
+
+	for i, v := range s {
+		num, err := findValue(v, code)
+		if err != nil {
+			return BitArray{}, err
+		}
+
+		curPart := i * bitLen
+		for j := 0; j < bitLen; j++ {
+			newBit := false
+			if (0x20 >> j) & num > 0 {
+				newBit = true
+			}
+
+			bits.Set(curPart + j, newBit)
+		}
+	}
+
 	return bits, nil
 }
 
-func numToBits(n int) []bool {
-	bits := byteToBits(byte(n))
-	return bits[8-6 : 8]
-}
-
-func base64Decoding(s, codeSet string) (int, error) {
-	num := 0
-	n := float64(len(s)) - 1
-	for i := 0; i < len(s); i++ {
-		index := strings.IndexByte(codeSet, s[i])
-		if index == -1 {
-			return num, errors.New(`base64decoding error: semantic error: 
-			string was invalid, character not found in codeset`)
-		}
-		num += index * int(math.Pow(64, n))
+// TODO: potential performance increase (remove linear search IndexByte?)
+func findValue(s byte, codeSet []byte) (int, error) {
+	index := bytes.IndexByte(codeSet, s)
+	if index == -1 {
+		return index, errors.New("base64decoding: semantic: string was invalid, character not found in codeset")
 	}
-	return num, nil
+
+	return index, nil
 }
