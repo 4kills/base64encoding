@@ -1,10 +1,12 @@
 package base64encoding
 
+import "github.com/4kills/base64encoding/datatypes"
+
 func (enc Encoder64) encode(b []byte) string {
-	return string(bitsToBase64(FromBytes(b), enc.valMap))
+	return string(bitsToBase64(datatypes.FromBytes(b), enc.valMap))
 }
 
-func bitsToBase64(bits BitArray, valMap []byte) []byte {
+func bitsToBase64(bits datatypes.BitArray, valMap []byte) []byte {
 	log64 := 6
 	runs := bits.Len() / log64
 	remainder := bits.Len() % log64
@@ -27,7 +29,7 @@ func bitsToBase64(bits BitArray, valMap []byte) []byte {
 }
 
 // assert 0 <= n <= 8
-func nextNBits(a BitArray, idx, n int) byte {
+func nextNBits(a datatypes.BitArray, idx, n int) byte {
 	var b byte
 	for i := 0; i < n; i++ {
 		bit := a.Get(idx + i)

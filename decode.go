@@ -2,6 +2,7 @@ package base64encoding
 
 import (
 	"errors"
+	"github.com/4kills/base64encoding/datatypes"
 )
 
 func (enc Encoder64) decode(s string) ([]byte, error) {
@@ -18,15 +19,15 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 	return bits.bits[1:], nil
 }
 
-func base64ToBits(s, posMap []byte) (BitArray, error) {
+func base64ToBits(s, posMap []byte) (datatypes.BitArray, error) {
 	bitLen := 6                        // only need 6 bit for the numbers 0-63
 	shift := 8 - (len(s) * bitLen) % 8 // shifting the bit so i can cut them away more easily later
-	bits := NewBitArray(shift + len(s) * bitLen)
+	bits := datatypes.NewBitArray(shift + len(s) * bitLen)
 
 	for i := 0; i < len(s); i++ {
 		num, err := findValue(s[i], posMap)
 		if err != nil {
-			return BitArray{}, err
+			return datatypes.BitArray{}, err
 		}
 
 		curPart := i * bitLen

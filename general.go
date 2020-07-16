@@ -2,6 +2,7 @@ package base64encoding
 
 import (
 	"errors"
+	"github.com/4kills/base64encoding/datatypes"
 	"unicode"
 )
 
@@ -90,7 +91,7 @@ func newCustom(code string) (Encoder64, error) {
 	}
 
 	// check for pairwise distinction
-	b := NewBitArray(unicode.MaxASCII + 1)
+	b := datatypes.NewBitArray(unicode.MaxASCII + 1)
 	for i := 0; i < len(code); i++ {
 		if b.Get(int(code[i])) != false {
 			return Encoder64{}, ErrNotDistinct
