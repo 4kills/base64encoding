@@ -10,7 +10,7 @@ func bitsToBase64(bits BitArray, valMap []byte) []byte {
 	remainder := bits.Len() % log64
 	overflow := 0
 	if remainder != 0 {
-		overflow = 1 
+		overflow = 1
 	}
 
 	str := make([]byte, runs+overflow)
