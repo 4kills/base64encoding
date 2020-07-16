@@ -19,6 +19,7 @@ const EasilyReadableCodeSet = "*)23456789abcdefghi_klmnopqrstuvwxyzABCDEFGH+JKLM
 type Encoder64 struct {
 	codeSet string
 	posMap []byte
+	valMap []byte
 }
 
 // Decode decodes a given string and returns an error if the string is not in a correct format
@@ -114,5 +115,11 @@ func newCustom(code string) (Encoder64, error) {
 		pos[code[i]] = 1 + byte(i)
 	}
 
-	return Encoder64{codeSet: code, posMap: pos}, nil
+	// map val
+	val := make([]byte, len(code))
+	for i := 0; i < len(code); i++ {
+		val[i] = code[i]
+	}
+
+	return Encoder64{codeSet: code, posMap: pos, valMap: val}, nil
 }
