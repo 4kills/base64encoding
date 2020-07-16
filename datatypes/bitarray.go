@@ -26,6 +26,12 @@ func FromBytes(src []byte) BitArray {
 	return BitArray{len(src)*8, src}
 }
 
+// Expose exposes the underlying byte array. Only use this read-only
+// or you will change the inner state of this struct, which can cause unexpected behavior
+func (b BitArray) Expose() []byte {
+	return b.bits
+}
+
 // Len returns the len/size of the array
 func (b BitArray) Len() int {
 	return b.size

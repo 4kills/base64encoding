@@ -16,7 +16,7 @@ func (enc Encoder64) decode(s string) ([]byte, error) {
 	}
 
 	// cut away the first shifted byte
-	return bits.bits[1:], nil
+	return bits.Expose()[1:], nil
 }
 
 func base64ToBits(s, posMap []byte) (datatypes.BitArray, error) {
